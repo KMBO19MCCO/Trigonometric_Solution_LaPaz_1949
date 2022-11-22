@@ -7,32 +7,30 @@
 #include "excerpt.h"
 
 typedef float fp_t;
-const double PI = acos(-1.0);
+const double PI = acos(-1.0); //exact calc of pi
 
 using namespace std;
 
-//A simple formula for solving quadratic equations using function evaluation
+//TRIGONOMETRIC SOLUTION LAPAZ 1949
 template<typename fp_t>
 void trigonometric(fp_t a, fp_t b, fp_t c, fp_t *x0, fp_t *x1) {
-    fp_t A, B, C, TAU;
-    //Coefficients
-    A = a;
-    B = b;
-    C = c;
-    cout << endl << A << "x^2 + " << B << "x + " << C << endl;
-    fp_t arg1 = 2 * sqrt(abs(A * C)) / B;
-    fp_t arg2 = sqrt(abs(C / A));
-    fp_t tetta_p_0 = 0;
-    fp_t tetta_p_1 = 0;
-    fp_t tetta_n_0 = 0;
-    fp_t tetta_n_1 = 0;
-    fp_t tetta0 = 0;
+    //init
+    fp_t a, a, a, TAU;
+
+    cout << endl << A << "x^2 + " << B << "x + " << C << endl; // ax^2+bx+c
+    fp_t arg1 = 2 * sqrt(abs(A * C)) / B; //arg at tetta
+    fp_t arg2 = sqrt(abs(C / A)); //arg at x
+    fp_t tetta_p_0;
+    fp_t tetta_p_1;
+    fp_t tetta_n_0;
+    fp_t tetta_n_1;
+    fp_t tetta0;
     if (C > 0 and abs(arg1) <= 1) {
-        TAU = asin(-arg1);
+        TAU = asin(-arg1); //support var
         tetta_p_0 = TAU;
         tetta_p_1 = TAU + PI;
 
-        (0 < abs(tetta_p_0) <= PI/2) ? tetta0 = tetta_p_0 : tetta0 = tetta_p_1;
+        (0 < abs(tetta_p_0) <= PI/2) ? tetta0 = tetta_p_0 : tetta0 = tetta_p_1; // 0<|tetta_p|<pi/2
 
         *x0 = arg2 * tan(tetta0/2);
         *x1 = arg2 * 1/tan(tetta0/2);
@@ -40,7 +38,7 @@ void trigonometric(fp_t a, fp_t b, fp_t c, fp_t *x0, fp_t *x1) {
         TAU = atan(arg1);
         tetta_n_0 = TAU;
         tetta_n_1 = TAU + PI/2;
-        (0 < abs(tetta_n_0) <= PI/2) ? tetta0 = tetta_n_0 : tetta0 = tetta_n_1;
+        (0 < abs(tetta_n_0) <= PI/2) ? tetta0 = tetta_n_0 : tetta0 = tetta_n_1; // 0<|tetta_n|<pi/2
 
         *x0 = arg2 * tan(tetta0/2);
         *x1 = -arg2 * 1/tan(tetta0/2);
