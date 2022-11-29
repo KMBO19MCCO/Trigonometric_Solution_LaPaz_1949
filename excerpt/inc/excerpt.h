@@ -68,6 +68,14 @@ int compare_roots_complex(unsigned N_roots_to_check, // number of roots in roots
                           unsigned N_roots_ground_truth,  // number of roots in roots_ground_truth
                           std::vector<std::complex<fp_t>> &roots_to_check, // one should take into account only first (N_roots_to_check) rots
                           std::vector<fp_t> &roots_ground_truth, // one should take into account only first (N_roots_ground_truth) rots
-                          fp_t &max_deviation);
+                          fp_t &max_absolute_error, // here the greatest among the smallest deviations of the roots in (roots_to_check) and (roots_ground_truth)
+        // will be placed
+        // here the greatest relative error among all the roots found will be placed
+                          fp_t &max_relative_error);
+
+
+//The function checks the roots for complexity and returns the vector of real roots
+template<typename fp_t>
+std::vector<fp_t> return_real_roots(std::vector<std::complex<fp_t>> &roots_to_check);
 
 #endif //POLYROOTS1234_HPP
