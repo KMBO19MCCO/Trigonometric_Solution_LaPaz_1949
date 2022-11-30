@@ -3,7 +3,7 @@ project(Trigonometric_Solution_LaPaz_1949)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_subdirectory(excerpt)
-include_directories(${Trigonometric_Solution_LaPaz_1949_SOURCE_DIR}/excerpt/inc)
-add_executable(Trigonometric_Solution_LaPaz_1949 main.cpp)
-target_link_libraries(Trigonometric_Solution_LaPaz_1949 excerpt)
+
+include_directories(${PROJECT_SOURCE_DIR}/excerpt)
+link_directories(${PROJECT_SOURCE_DIR}/excerpt)
+add_executable(${CMAKE_PROJECT_NAME} main.cpp ${PROJECT_SOURCE_DIR}/excerpt/excerpt.cpp)
