@@ -6,42 +6,43 @@
 #include <limits>
 #include "excerpt.h"
 
-typedef float fp_t;
-const double PI = acos(-1.0); //exact calc of pi
 
 using namespace std;
+
+typedef float fp_t;
+const double PI = numbers::pi_v<fp_t>; //exact calc of pi
 
 //TRIGONOMETRIC SOLUTION LAPAZ 1949
 template<typename fp_t>
 void trigonometric(fp_t a, fp_t b, fp_t c, fp_t *x0, fp_t *x1) {
     //init
-    fp_t a, a, a, TAU;
+    fp_t TAU;
 
-    cout << endl << A << "x^2 + " << B << "x + " << C << endl; // ax^2+bx+c
-    fp_t arg1 = 2 * sqrt(abs(A * C)) / B; //arg at tetta
-    fp_t arg2 = sqrt(abs(C / A)); //arg at x
+    cout << endl << a << "x^2 + " << b << "x + " << c << endl; // ax^2+bx+c
+    fp_t arg1 = static_cast<fp_t>(2.0L) * sqrt(abs(a * c)) / b; //arg at tetta
+    fp_t arg2 = sqrt(abs(c / a)); //arg at x
     fp_t tetta_p_0;
     fp_t tetta_p_1;
     fp_t tetta_n_0;
     fp_t tetta_n_1;
     fp_t tetta0;
-    if (C > 0 and abs(arg1) <= 1) {
+    if (c > 0 and abs(arg1) <= 1) {
         TAU = asin(-arg1); //support var
         tetta_p_0 = TAU;
         tetta_p_1 = TAU + PI;
 
-        (0 < abs(tetta_p_0) <= PI/2) ? tetta0 = tetta_p_0 : tetta0 = tetta_p_1; // 0<|tetta_p|<pi/2
+        (0 < abs(tetta_p_0) <= PI/static_cast<fp_t>(2.0L)) ? tetta0 = tetta_p_0 : tetta0 = tetta_p_1; // 0<|tetta_p|<pi/2
 
-        *x0 = arg2 * tan(tetta0/2);
-        *x1 = arg2 * 1/tan(tetta0/2);
-    } else if (C <= 0) {
+        *x0 = arg2 * tan(tetta0/static_cast<fp_t>(2.0L));
+        *x1 = arg2 * static_cast<fp_t>(1.0L) /tan(tetta0/static_cast<fp_t>(2.0L));
+    } else if (c <= 0) {
         TAU = atan(arg1);
         tetta_n_0 = TAU;
-        tetta_n_1 = TAU + PI/2;
-        (0 < abs(tetta_n_0) <= PI/2) ? tetta0 = tetta_n_0 : tetta0 = tetta_n_1; // 0<|tetta_n|<pi/2
+        tetta_n_1 = TAU + PI/static_cast<fp_t>(2.0L);
+        (0 < abs(tetta_n_0) <= PI/static_cast<fp_t>(2.0L)) ? tetta0 = tetta_n_0 : tetta0 = tetta_n_1; // 0<|tetta_n|<pi/2
 
-        *x0 = arg2 * tan(tetta0/2);
-        *x1 = -arg2 * 1/tan(tetta0/2);
+        *x0 = arg2 * tan(tetta0/static_cast<fp_t>(2.0L));
+        *x1 = -arg2 * static_cast<fp_t>(1.0L)/tan(tetta0/static_cast<fp_t>(2.0L));
     } else
         cout << "Only complex roots ";
     cout << "Roots: " << x0 << "; " << x1 << endl;
