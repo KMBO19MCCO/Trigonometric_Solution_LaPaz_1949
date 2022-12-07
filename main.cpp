@@ -50,6 +50,7 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             roots[1] = arg2 / tan(tetta_0 / 2);
 
             cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
+            cnt_roots = 2;
         } else if (c < 0 and abs(arg1) <= 1) { // Проверка на вещественные корни и "С" меньше 0
             tetta_n = atan(arg1);
             tetta_0 = tetta_n;
@@ -69,15 +70,17 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             roots[1] = -arg2 / tan(tetta_0 / 2);
 
             cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
-        } else // Если комплексные корни
+            cnt_roots = 2;
+        } else { // Если комплексные корни
+            cnt_roots = 0;
             cout << "Only complex roots " << endl;
+        }
     }
     else{          // b/a = inf - значит уравнение формально не квадратное, находим единственный корень
         roots[0] = -c/b; // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
         if(!isinf(roots[0])) cnt_roots = 1;
         else cnt_roots = 0;
     }
-    cnt_roots = 2;
     return cnt_roots;
 }
 
@@ -106,7 +109,7 @@ typedef float fp_t;
 int main() {
     float max_absolut_deviation = 0;
     float max_relative_deviation = 0;
-    for (auto i = 0; i < 100; ++i) {
+    for (auto i = 0; i < 10'000; ++i) {
         auto deviation = testPolynomial<float>(2);
         cout << "ABS_DEVATION = " << deviation.first << endl;
 
