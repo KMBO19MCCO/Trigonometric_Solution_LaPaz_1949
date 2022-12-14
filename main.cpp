@@ -9,13 +9,13 @@
 
 using namespace std;
 
-typedef float fp_t;
-const double PI = numbers::pi_v<fp_t>; // Точное пи
 
 //TRIGONOMETRIC SOLUTION LAPAZ 1949
 template<typename fp_t>
 int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
     //init
+    static const double PI = numbers::pi_v<fp_t>; // Точное пи
+    static const double PId_2 = PI / 2;           // PI/2
     fp_t a, b, c, TAU;
 
     a = coefficients[2];
@@ -23,51 +23,61 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
     c = coefficients[0];
 
     //cout << endl << a << "x^2 + " << b << "x + " << c << endl; // ax^2+bx+c
-    fp_t arg1 = 2 * sqrt(abs(a * c)) / b; //аргумент при tetta
-    fp_t arg2 = sqrt(abs(c / a)); //аргумент при x
-    fp_t tetta_p;
-    fp_t tetta_n;
-    fp_t tetta_0;
+    fp_t arg1;    //аргумент при tetta
+    fp_t arg2;    //аргумент при x
+    fp_t tetta_p; //пер. при c>0
+    fp_t tetta_n; //пер. при c<0
+    fp_t tetta_0; //главная пер.
+
     int j = 0;
     int cnt_roots = 0;
-    if (a!=0) { // Проверка отсутствия линейности
-        if (c > 0 and abs(arg1) <= 1) { // Проверка на вещественные корни и "С" больше 0
+
+    if (a != 0 && b != 0) {   // Проверка отсутствия линейности
+        arg1 = 2 * sqrt(abs(a * c)) / b;
+        arg2 = sqrt(abs(c / a));
+
+        if (c > 0 and abs(arg1) <= 1) {             // Проверка на вещественные корни и "С" больше 0
             tetta_p = asin(-arg1);
             tetta_0 = tetta_p;
 
-            while (!(0 < abs(tetta_0) < PI / static_cast<fp_t>(2.0f))) // Диапазон
+            while (!(0 < abs(tetta_0) < PId_2))     // Диапазон (0,PI/2)
             {
-                if (tetta_0 > PI/2) { // Если выходит справа (меняется чётность j)
-                    tetta_0 += fma(-PI,j,tetta_p) / pow((-1), j); //fma(-PI,j,tetta_p) / pow((-1), j), (tetta_p - j * PI) / pow((-1), j)
+                fp_t arg3 = fma(-PI, j, tetta_p);
+                if (tetta_0 > PId_2) {              // Если выходит справа
+                    tetta_0 += arg3 /
+                               pow((-1), j);  // (tetta_p - j * PI) / pow((-1), j)
                     j++;
-                } else { // Если выходит слева (меняется чётность j)
-                    tetta_0 += fma(-PI,j,tetta_p) / pow((-1), j); // fma(-PI,j,tetta_p) / pow((-1), j, (tetta_p - j * PI) / pow((-1), j)
+
+                } else { // Если выходит слева
+                    tetta_0 += arg3 /
+                               pow((-1), j);  // (tetta_p - j * PI) / pow((-1), j)
                     j--;
                 }
             }
-
-            roots[0] = arg2 * tan(tetta_0 / static_cast<fp_t>(2.0f));
-            roots[1] = arg2 / tan(tetta_0 / static_cast<fp_t>(2.0f));
+            fp_t arg4 = tan(tetta_0 / 2);
+            roots[0] = arg2 * arg4;
+            roots[1] = arg2 / arg4;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
             cnt_roots = 2;
-        } else if (c < 0 and abs(arg1) <= 1) { // Проверка на вещественные корни и "С" меньше 0
+        } else if (c < 0 and abs(arg1) <= 1) {    // Проверка на вещественные корни и "С" меньше 0
             tetta_n = atan(arg1);
             tetta_0 = tetta_n;
+            while (!(0 < abs(tetta_0) < PId_2)) { // Диапазон (0,PI/2)
+                fp_t arg3 = fma(-PI, j, tetta_n);
 
-            while (!(0 < abs(tetta_0) < PI / static_cast<fp_t>(2.0f)))
-            {
-                if (tetta_0 > PI/2) { // Если выходит справа
-                    tetta_0 += fma(-PI,j,tetta_n) / pow((-1), j); //fma(-PI,j,tetta_n) / pow((-1), j), (tetta_n - j * PI) / pow((-1), j)
+                if (tetta_0 > PId_2) {            // Если выходит справа
+                    tetta_0 += arg3;// fma(-PI,j,tetta_n), (tetta_n - j * PI)
                     j++;
-                } else { // Если выходит слева
-                    tetta_0 += fma(-PI,j,tetta_n) / pow((-1), j); //(tetta_n - j * PI) / pow((-1), j)
+                } else {                          // Если выходит слева
+                    tetta_0 += arg3; //(tetta_n - j * PI)
                     j--;
                 }
             }
 
-            roots[0] = arg2 * tan(tetta_0 / static_cast<fp_t>(2.0f));
-            roots[1] = -arg2 / tan(tetta_0 / static_cast<fp_t>(2.0f));
+            fp_t arg4 = tan(tetta_0 / 2);
+            roots[0] = arg2 * arg4;
+            roots[1] = -arg2 / arg4;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
             cnt_roots = 2;
@@ -75,15 +85,30 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             cnt_roots = 0;
             //cout << "Only complex roots " << endl;
         }
-    }
-    else{          // b/a = inf - значит уравнение формально не квадратное, находим единственный корень
-        roots[0] = -c/b; // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
-        if(!isinf(roots[0])) cnt_roots = 1;
+    } else if (a == 0) {    // b/a = inf - значит уравнение формально не квадратное, находим единственный корень
+        roots[0] = -c / b; // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
+        if (!isinf(roots[0])) cnt_roots = 1;
         else cnt_roots = 0;
+    } else if (b == 0) { // уже знаем что a != 0
+        fp_t cond = -c / a;
+        if (cond >= 0) { // Проверка на вещественность
+            fp_t b_0 = sqrt(cond);
+            roots[0] = -b_0;
+            roots[1] = b_0;
+            cnt_roots = 2;
+        } else cnt_roots = 0;
     }
+    /*ax^2+bx+c=0 if a is any
+    ax^2+c=0 // if b==0
+    x^2 = -c/a
+    x = +-sqrt(-c/a)
+
+    ax^2+bx+c=0 if a and b == 0
+    c=0
+    null set
+    */
     return cnt_roots;
 }
-
 
 
 template<typename fp_t>
@@ -121,4 +146,5 @@ int main() {
     }
     cout << endl << "MAX_ABSOLUT_deviation = " << max_absolut_deviation << endl;
     cout << endl << "MAX_RELATIVE_deviation = " << max_relative_deviation << endl;
+
 }
