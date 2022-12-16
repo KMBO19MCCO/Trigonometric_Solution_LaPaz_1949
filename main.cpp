@@ -40,20 +40,15 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             tetta_p = asin(-arg1);
             tetta_0 = tetta_p;
 
-            while (!(0 < abs(tetta_0) < PId_2))     // Диапазон (0,PI/2)
-            {
+            while (!(0 < abs(tetta_0) < PId_2)) {    // Диапазон (0,PI/2)
+                // (tetta_p - j * PI) / pow((-1), j)
                 fp_t arg3 = fma(-PI, j, tetta_p);
-                if (tetta_0 > PId_2) {              // Если выходит справа
-                    tetta_0 += arg3 /
-                               pow((-1), j);  // (tetta_p - j * PI) / pow((-1), j)
-                    j++;
+                tetta_0 += arg3;
+                tetta_0 -= 2 * (j % 2 != 0) * tetta_0;
 
-                } else { // Если выходит слева
-                    tetta_0 += arg3 /
-                               pow((-1), j);  // (tetta_p - j * PI) / pow((-1), j)
-                    j--;
-                }
+                (tetta_0 > PId_2) ? j++ : j--; // Если выходит справа, иначе справа
             }
+
             fp_t arg4 = tan(tetta_0 / 2);
             roots[0] = arg2 * arg4;
             roots[1] = arg2 / arg4;
@@ -64,15 +59,11 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             tetta_n = atan(arg1);
             tetta_0 = tetta_n;
             while (!(0 < abs(tetta_0) < PId_2)) { // Диапазон (0,PI/2)
+                // fma(-PI,j,tetta_n), (tetta_n - j * PI)
                 fp_t arg3 = fma(-PI, j, tetta_n);
+                tetta_0 += arg3; // fma(-PI,j,tetta_n), (tetta_n - j * PI)
 
-                if (tetta_0 > PId_2) {            // Если выходит справа
-                    tetta_0 += arg3;// fma(-PI,j,tetta_n), (tetta_n - j * PI)
-                    j++;
-                } else {                          // Если выходит слева
-                    tetta_0 += arg3; //(tetta_n - j * PI)
-                    j--;
-                }
+                (tetta_0 > PId_2) ? j++ : j--; // Если выходит справа, иначе справа
             }
 
             fp_t arg4 = tan(tetta_0 / 2);
