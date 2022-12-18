@@ -1,22 +1,25 @@
+// КМБО-03-19 Успенский Артём / Кукулиев Андрей
+// почта: uspenskiy.artem@yandex.ru / kukuliew@mail.ru
+// статья: https://articles.adsabs.harvard.edu/pdf/1949PASP...61..222L
+
 
 #include <iostream>
 #include <vector>
 #include <cmath>
 #include <complex>
-#include <limits>
 #include "excerpt.h"
-
+#define MAX_DISTANCE 1e-5
 
 using namespace std;
 
 
 //TRIGONOMETRIC SOLUTION LAPAZ 1949
 template<typename fp_t>
-int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
+int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     //init
-    static const double PI = numbers::pi_v<fp_t>; // Точное пи
-    static const double PId_2 = PI / 2;           // PI/2
-    fp_t a, b, c, TAU;
+    static const double PI = numbers::pi_v<fp_t>;             // Точное пи
+    static const double PId_2 = static_cast<fp_t>(0.5) * PI;  // PI/2
+    fp_t a, b, c;
 
     a = coefficients[2];
     b = coefficients[1];
@@ -32,24 +35,23 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
     int j = 0;
     int cnt_roots = 0;
 
-    if (a != 0 && b != 0) {   // Проверка отсутствия линейности
+    if (!isinf(c/a) && !isinf(c/b)) {                // Проверка отсутствия линейности
         arg1 = 2 * sqrt(abs(a * c)) / b;
         arg2 = sqrt(abs(c / a));
 
-        if (c > 0 and abs(arg1) <= 1) {             // Проверка на вещественные корни и "С" больше 0
+        if (c > 0 and abs(arg1) <= 1) {              // Проверка на вещественные корни и "С" больше 0
             tetta_p = asin(-arg1);
             tetta_0 = tetta_p;
 
-            while (!(0 < abs(tetta_0) < PId_2)) {    // Диапазон (0,PI/2)
+            while (!(0 < abs(tetta_0) < PId_2)) {           // Диапазон (0,PI/2)
                 // (tetta_p - j * PI) / pow((-1), j)
                 fp_t arg3 = fma(-PI, j, tetta_p);
-                tetta_0 += arg3;
-                tetta_0 -= 2 * (j % 2 != 0) * tetta_0;
+                tetta_0 = fma(-2 * (j % 2 != 0),arg3,arg3); // tetta_0 = arg3 - 2 * (j % 2 != 0) * arg3
 
-                (tetta_0 > PId_2) ? j++ : j--; // Если выходит справа, иначе справа
+                (tetta_0 > PId_2) ? j++ : j--;              // Если выходит справа, иначе слева
             }
 
-            fp_t arg4 = tan(tetta_0 / 2);
+            fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
             roots[0] = arg2 * arg4;
             roots[1] = arg2 / arg4;
 
@@ -60,13 +62,12 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             tetta_0 = tetta_n;
             while (!(0 < abs(tetta_0) < PId_2)) { // Диапазон (0,PI/2)
                 // fma(-PI,j,tetta_n), (tetta_n - j * PI)
-                fp_t arg3 = fma(-PI, j, tetta_n);
-                tetta_0 += arg3; // fma(-PI,j,tetta_n), (tetta_n - j * PI)
+                tetta_0 = fma(-PI, j, tetta_n);
 
-                (tetta_0 > PId_2) ? j++ : j--; // Если выходит справа, иначе справа
+                (tetta_0 > PId_2) ? j++ : j--;    // Если выходит справа, иначе справа
             }
 
-            fp_t arg4 = tan(tetta_0 / 2);
+            fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
             roots[0] = arg2 * arg4;
             roots[1] = -arg2 / arg4;
 
@@ -76,13 +77,13 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
             cnt_roots = 0;
             //cout << "Only complex roots " << endl;
         }
-    } else if (a == 0) {    // b/a = inf - значит уравнение формально не квадратное, находим единственный корень
-        roots[0] = -c / b; // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
+    } else if (isinf(c/a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
+        roots[0] = -c / b;      // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
         if (!isinf(roots[0])) cnt_roots = 1;
         else cnt_roots = 0;
-    } else if (b == 0) { // уже знаем что a != 0
+    } else if (isinf(c/b)) {    // уже знаем что a != 0
         fp_t cond = -c / a;
-        if (cond >= 0) { // Проверка на вещественность
+        if (cond >= 0) {        // Проверка на вещественность
             fp_t b_0 = sqrt(cond);
             roots[0] = -b_0;
             roots[1] = b_0;
@@ -103,15 +104,15 @@ int trigonometric(vector<fp_t> coefficients, vector<fp_t> &roots) {
 
 
 template<typename fp_t>
-pair<fp_t, fp_t> testPolynomial(unsigned int roots_count) {
+pair <fp_t, fp_t> testPolynomial(unsigned int roots_count) {
     fp_t max_absolute_error, max_relative_error;
-    vector<fp_t> roots_computed(roots_count);
-    vector<fp_t> roots(roots_count), coefficients(roots_count + 1);
-    generate_polynomial<fp_t>(roots_count, 0, roots_count, 0, 1e-5, -1, 1, roots,
+    vector <fp_t> roots_computed(roots_count);
+    vector <fp_t> roots(roots_count), coefficients(roots_count + 1);
+    generate_polynomial<fp_t>(roots_count, 0, roots_count, 0, MAX_DISTANCE, -1, 1, roots,
                               coefficients);
     int cnt_real_roots = trigonometric(coefficients, roots_computed);
     if (cnt_real_roots != 0 && cnt_real_roots != -1) {
-        compare_roots<fp_t>(roots_computed.size(), roots.size(), roots_computed, roots,
+        compare_roots2<fp_t>(roots_computed.size(), roots.size(), roots_computed, roots,
                             max_absolute_error, max_relative_error);
 
     } else max_absolute_error = 0, max_relative_error = 0;
