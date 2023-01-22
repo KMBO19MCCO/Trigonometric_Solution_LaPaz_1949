@@ -35,7 +35,7 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     int j = 0;
     int cnt_roots = 0;
 
-    if (!isinf(c/a) && !isinf(c/b)) {                // Проверка отсутствия линейности
+    if (!isinf(c/a) && !isinf(c/b) && a!=0 && b!=0) {                // Проверка отсутствия линейности
         arg1 = 2 * sqrt(abs(a * c)) / b;
         arg2 = sqrt(abs(c / a));
 
@@ -46,14 +46,17 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             while (!(0 < abs(tetta_0) < PId_2)) {           // Диапазон (0,PI/2)
                 // (tetta_p - j * PI) / pow((-1), j)
                 fp_t arg3 = fma(-PI, j, tetta_p);
-                tetta_0 = fma(-2 * (j % 2 != 0),arg3,arg3); // tetta_0 = arg3 - 2 * (j % 2 != 0) * arg3
+                tetta_0 = fma(-2 * (j % 2 != 0), arg3, arg3); // tetta_0 = arg3 - 2 * (j % 2 != 0) * arg3
 
                 (tetta_0 > PId_2) ? j++ : j--;              // Если выходит справа, иначе слева
             }
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
             roots[0] = arg2 * arg4;
-            roots[1] = arg2 / arg4;
+            if (arg4 != 0)
+                roots[1] = arg2 / arg4;
+            else
+                cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
             cnt_roots = 2;
@@ -69,7 +72,10 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
             roots[0] = arg2 * arg4;
-            roots[1] = -arg2 / arg4;
+            if (arg4 != 0)
+                roots[1] = -arg2 / arg4;
+            else
+                cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
             cnt_roots = 2;
