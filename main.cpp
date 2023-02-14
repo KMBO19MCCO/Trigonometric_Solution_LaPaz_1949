@@ -35,9 +35,14 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     int j = 0;
     int cnt_roots = 0;
 
-    if (!isinf(c/a) && !isinf(c/b) && a!=0 && b!=0) {                // Проверка отсутствия линейности
+    // переменные для одинаковых проверок
+    fp_t c_b = c / b;
+    fp_t c_a = c / a;
+    fp_t a_b = a / b;
+
+    if (!isinf(a_b) && !isinf(c_a) && !isinf(c_b) && a!=0 && b!=0) {                // Проверка отсутствия линейности
         arg1 = 2 * sqrt(abs(a * c)) / b;
-        arg2 = sqrt(abs(c / a));
+        arg2 = sqrt(abs(c_a));
 
         if (c > 0 and abs(arg1) <= 1) {              // Проверка на вещественные корни и "С" больше 0
             tetta_p = asin(-arg1);
@@ -52,9 +57,12 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             }
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
+            fp_t root_1 = arg2 / arg4;
+
             roots[0] = arg2 * arg4;
-            if (arg4 != 0)
-                roots[1] = arg2 / arg4;
+
+            if (arg4 != 0 && !isinf(root_1))
+                roots[1] = root_1;
             else
                 cnt_roots = 1;
 
@@ -71,9 +79,12 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             }
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
+            fp_t root_1 = arg2 / arg4;
+
             roots[0] = arg2 * arg4;
-            if (arg4 != 0)
-                roots[1] = -arg2 / arg4;
+
+            if (arg4 != 0 && !isinf(root_1))
+                roots[1] = -root_1;
             else
                 cnt_roots = 1;
 
@@ -83,14 +94,13 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             cnt_roots = 0;
             //cout << "Only complex roots " << endl;
         }
-    } else if (isinf(c/a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
-        roots[0] = -c / b;      // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
+    } else if (isinf(c_a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
+        roots[0] = -c_b;      // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
         if (!isinf(roots[0])) cnt_roots = 1;
         else cnt_roots = 0;
-    } else if (isinf(c/b)) {    // уже знаем что a != 0
-        fp_t cond = -c / a;
-        if (cond >= 0) {        // Проверка на вещественность
-            fp_t b_0 = sqrt(cond);
+    } else if (isinf(c_b)) {    // уже знаем что a != 0
+        if (-c_a >= 0) {        // Проверка на вещественность
+            fp_t b_0 = sqrt(-c_a);
             roots[0] = -b_0;
             roots[1] = b_0;
             cnt_roots = 2;
