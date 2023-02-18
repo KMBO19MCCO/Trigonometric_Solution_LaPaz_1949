@@ -40,7 +40,7 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     fp_t c_a = c / a;
     fp_t a_b = a / b;
 
-    if (!isinf(a_b) && !isinf(c_a) && !isinf(c_b) && a!=0 && b!=0) {                // Проверка отсутствия линейности
+    if (!isinf(a_b) && !isinf(c_a) && !isinf(c_b) && !isnan(c_b) && !isnan(c_a)) {                // Проверка отсутствия линейности
         arg1 = 2 * sqrt(abs(a * c)) / b;
         arg2 = sqrt(abs(c_a));
 
@@ -61,7 +61,7 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
 
             roots[0] = arg2 * arg4;
 
-            if (arg4 != 0 && !isinf(root_1))
+            if (!isnan(root_1) && !isinf(root_1))
                 roots[1] = root_1;
             else
                 cnt_roots = 1;
@@ -83,7 +83,7 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
 
             roots[0] = arg2 * arg4;
 
-            if (arg4 != 0 && !isinf(root_1))
+            if (!isnan(root_1) && !isinf(root_1))
                 roots[1] = -root_1;
             else
                 cnt_roots = 1;
@@ -94,11 +94,11 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             cnt_roots = 0;
             //cout << "Only complex roots " << endl;
         }
-    } else if (isinf(c_a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
-        roots[0] = -c_b;      // не проверяем b!=0, т.к. делаем проверку корня на бесконечность
-        if (!isinf(roots[0])) cnt_roots = 1;
+    } else if (isinf(c_a) || isnan(c_a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
+        roots[0] = -c_b;
+        if (!isnan(roots[0])) cnt_roots = 1;
         else cnt_roots = 0;
-    } else if (isinf(c_b)) {    // уже знаем что a != 0
+    } else if (isinf(c_b) || isnan(c_b)) {    // уже знаем что a != 0
         if (-c_a >= 0) {        // Проверка на вещественность
             fp_t b_0 = sqrt(-c_a);
             roots[0] = -b_0;
