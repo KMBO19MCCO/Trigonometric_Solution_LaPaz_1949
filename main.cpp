@@ -28,8 +28,6 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     //cout << endl << a << "x^2 + " << b << "x + " << c << endl; // ax^2+bx+c
     fp_t arg1;    //аргумент при tetta
     fp_t arg2;    //аргумент при x
-    fp_t tetta_p; //пер. при c>0
-    fp_t tetta_n; //пер. при c<0
     fp_t tetta_0; //главная пер.
 
     int j = 0;
@@ -40,53 +38,57 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     fp_t c_a = c / a;
     fp_t a_b = a / b;
 
-    if (!isinf(a_b) && !isinf(c_a) && !isinf(c_b) && !isnan(c_b) && !isnan(c_a)) {                // Проверка отсутствия линейности
+    if (isfinite(a_b) && isfinite(c_a) && isfinite(c_b)) {                // Проверка отсутствия линейности
         arg1 = 2 * sqrt(abs(a * c)) / b;
         arg2 = sqrt(abs(c_a));
 
         if (c > 0 and abs(arg1) <= 1) {              // Проверка на вещественные корни и "С" больше 0
-            tetta_p = asin(-arg1);
-            tetta_0 = tetta_p;
+            tetta_0 = asin(-arg1);
+            int k = static_cast<int>(tetta_0 / PI);
 
-            while (!(0 < abs(tetta_0) < PId_2)) {           // Диапазон (0,PI/2)
-                // (tetta_p - j * PI) / pow((-1), j)
-                fp_t arg3 = fma(-PI, j, tetta_p);
-                tetta_0 = fma(-2 * (j % 2 != 0), arg3, arg3); // tetta_0 = arg3 - 2 * (j % 2 != 0) * arg3
+            //проверка на положительность значения
+            (tetta_0 > 0) ? j=-1 : j=1;
 
-                (tetta_0 > PId_2) ? j++ : j--;              // Если выходит справа, иначе слева
+            // static_cast<int>(tetta_0 / PI) - это количество лишних PI в переменной
+            // tetta_0 - static_cast<int>(tetta_0 / PI) * PI;
+            tetta_0 = fma(j*PI,k, tetta_0);
+
+            // Нам нужно, чтобы tetta_0 был в диапазоне (-PI/2;PI/2)
+            if (abs(tetta_0) > PId_2) {
+                tetta_0 += j * PI;
+                k += 1;
             }
+
+            if (k % 2 != 0) tetta_0 *= -1;
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
             fp_t root_1 = arg2 / arg4;
 
             roots[0] = arg2 * arg4;
 
-            if (!isnan(root_1) && !isinf(root_1))
-                roots[1] = root_1;
-            else
-                cnt_roots = 1;
+            (isfinite(root_1)) ? roots[1] = root_1 : cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
             cnt_roots = 2;
         } else if (c < 0 and abs(arg1) <= 1) {    // Проверка на вещественные корни и "С" меньше 0
-            tetta_n = atan(arg1);
-            tetta_0 = tetta_n;
-            while (!(0 < abs(tetta_0) < PId_2)) { // Диапазон (0,PI/2)
-                // fma(-PI,j,tetta_n), (tetta_n - j * PI)
-                tetta_0 = fma(-PI, j, tetta_n);
+            tetta_0 = atan(arg1);
 
-                (tetta_0 > PId_2) ? j++ : j--;    // Если выходит справа, иначе справа
-            }
+            //проверка на положительность значения
+            (tetta_0 > 0) ? j=-1 : j=1;
+
+            // static_cast<int>(tetta_n / PI) - это количество лишних PI в переменной
+            // tetta_n - static_cast<int>(tetta_n / PI) * PI;
+            tetta_0 = fma(j*PI,static_cast<int>(tetta_0 / PI), tetta_0);
+
+            // Нам нужно, чтобы tetta_0 был в диапазоне (-PI/2;PI/2)
+            if (abs(tetta_0) > PId_2) tetta_0 += j*PI;
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
             fp_t root_1 = arg2 / arg4;
 
             roots[0] = arg2 * arg4;
 
-            if (!isnan(root_1) && !isinf(root_1))
-                roots[1] = -root_1;
-            else
-                cnt_roots = 1;
+            (isfinite(root_1)) ? roots[1] = -root_1 : cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
             cnt_roots = 2;
@@ -94,11 +96,10 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             cnt_roots = 0;
             //cout << "Only complex roots " << endl;
         }
-    } else if (isinf(c_a) || isnan(c_a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
+    } else if (!isfinite(c_a)) {    // c/a = inf - значит уравнение формально не квадратное, находим единственный корень
         roots[0] = -c_b;
-        if (!isnan(roots[0])) cnt_roots = 1;
-        else cnt_roots = 0;
-    } else if (isinf(c_b) || isnan(c_b)) {    // уже знаем что a != 0
+        cnt_roots = isfinite(roots[0]);
+    } else if (!isfinite(c_b)) {    // уже знаем что a != 0
         if (-c_a >= 0) {        // Проверка на вещественность
             fp_t b_0 = sqrt(-c_a);
             roots[0] = -b_0;
@@ -129,7 +130,7 @@ pair <fp_t, fp_t> testPolynomial(unsigned int roots_count) {
     int cnt_real_roots = trigonometric(coefficients, roots_computed);
     if (cnt_real_roots != 0 && cnt_real_roots != -1) {
         compare_roots2<fp_t>(roots_computed.size(), roots.size(), roots_computed, roots,
-                            max_absolute_error, max_relative_error);
+                             max_absolute_error, max_relative_error);
 
     } else max_absolute_error = 0, max_relative_error = 0;
     return pair<fp_t, fp_t>(max_absolute_error, max_relative_error);
