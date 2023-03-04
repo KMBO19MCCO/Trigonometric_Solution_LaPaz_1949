@@ -59,36 +59,34 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
                 k += 1;
             }
 
-            if (k % 2 != 0) tetta_0 *= -1;
+            tetta_0 = (k % 2 != 0) ? -tetta_0 : tetta_0;
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
-            fp_t root_1 = arg2 / arg4;
 
             roots[0] = arg2 * arg4;
             cnt_roots = 2;
-            (isfinite(root_1)) ? roots[1] = root_1 : cnt_roots = 1;
+            (isfinite(arg2 / arg4)) ? roots[1] = arg2 / arg4 : cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
         } else if (c < 0 and abs(arg1) <= 1) {    // Проверка на вещественные корни и "С" меньше 0
             tetta_0 = atan(arg1);
 
             //проверка на положительность значения
-            (tetta_0 > 0) ? j=-1 : j=1;
+            j = (tetta_0 > 0) ? -1 : 1;
 
             // static_cast<int>(tetta_n / PI) - это количество лишних PI в переменной
             // tetta_n - static_cast<int>(tetta_n / PI) * PI;
             tetta_0 = fma(j*PI,static_cast<int>(tetta_0 / PI), tetta_0);
 
             // Нам нужно, чтобы tetta_0 был в диапазоне (-PI/2;PI/2)
-            if (abs(tetta_0) > PId_2) tetta_0 += j*PI;
+            tetta_0 += (abs(tetta_0) > PId_2) ? j*PI : 0;
 
             fp_t arg4 = tan(static_cast<fp_t>(0.5) * tetta_0);
-            fp_t root_1 = arg2 / arg4;
 
             roots[0] = arg2 * arg4;
 
             cnt_roots = 2;
-            (isfinite(root_1)) ? roots[1] = -root_1 : cnt_roots = 1;
+            (isfinite(arg2 / arg4)) ? roots[1] = -arg2 / arg4 : cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
         } else { // Если комплексные корни
@@ -110,7 +108,6 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
     ax^2+c=0 // if b==0
     x^2 = -c/a
     x = +-sqrt(-c/a)
-
     ax^2+bx+c=0 if a and b == 0
     c=0
     null set
