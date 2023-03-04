@@ -65,11 +65,10 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             fp_t root_1 = arg2 / arg4;
 
             roots[0] = arg2 * arg4;
-
+            cnt_roots = 2;
             (isfinite(root_1)) ? roots[1] = root_1 : cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
-            cnt_roots = 2;
         } else if (c < 0 and abs(arg1) <= 1) {    // Проверка на вещественные корни и "С" меньше 0
             tetta_0 = atan(arg1);
 
@@ -88,10 +87,10 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
 
             roots[0] = arg2 * arg4;
 
+            cnt_roots = 2;
             (isfinite(root_1)) ? roots[1] = -root_1 : cnt_roots = 1;
 
             //cout << "Roots: " << roots[0] << "; " << roots[1] << endl;
-            cnt_roots = 2;
         } else { // Если комплексные корни
             cnt_roots = 0;
             //cout << "Only complex roots " << endl;
