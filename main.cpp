@@ -47,7 +47,7 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             int k = static_cast<int>(tetta_0 / PI);
 
             //проверка на положительность значения
-            (tetta_0 > 0) ? j=-1 : j=1;
+            j= (tetta_0 > 0) ? -1 : 1;
 
             // static_cast<int>(tetta_0 / PI) - это количество лишних PI в переменной
             // tetta_0 - static_cast<int>(tetta_0 / PI) * PI;
