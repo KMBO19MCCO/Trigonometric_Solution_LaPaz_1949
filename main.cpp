@@ -56,7 +56,7 @@ int trigonometric(vector <fp_t> coefficients, vector <fp_t> &roots) {
             // Нам нужно, чтобы tetta_0 был в диапазоне (-PI/2;PI/2)
             if (abs(tetta_0) > PId_2) {
                 tetta_0 += j * PI;
-                k += 1;
+                ++k;
             }
 
             tetta_0 = (k % 2 != 0) ? -tetta_0 : tetta_0;
